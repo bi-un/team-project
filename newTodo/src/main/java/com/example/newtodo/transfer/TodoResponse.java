@@ -1,6 +1,7 @@
 package com.example.newtodo.transfer;
 
 import com.example.newtodo.withTable.Todo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -10,7 +11,10 @@ import java.time.LocalDateTime;
 public class TodoResponse {
     private long id;
     private String title;
+
+    @JsonProperty("dueDate")
     private LocalDateTime deadline;
+
     private int priority;
     private boolean isCompleted;
 

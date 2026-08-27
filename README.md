@@ -1,1 +1,1 @@
-# team-project
+(본 내용은 master 브랜치 참고할 것)

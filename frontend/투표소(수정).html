@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투표소 - 본인 확인 시스템</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            text-align: center; 
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #reader { width: 320px; margin: 20px auto; }
+        .fallback-container { margin-top: 15px; }
+
+        .confirm-box {
+            border: 2px solid #007bff;
+            background-color: #e7f1ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .confirm-message {
+            font-size: 20px;
+            font-weight: bold;
+            color: #004085;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="scan-step">
+            <h2>선거관리위원회 - 본인 확인 시스템</h2>
+            <p>유권자의 QR 코드를 카메라에 스캔해주세요.</p>
+            <div id="reader"></div>
+
+            <div class="fallback-container">
+                <p style="font-size: 13px; color: #888;">카메라 스캔이 안 될 경우:</p>
+                <input type="text" id="manual-token" placeholder="난수 코드 입력">
+                <button onclick="processToken(document.getElementById('manual-token').value)">입력</button>
+            </div>
+        </div>
+
+        <div id="confirm-step" style="display: none;">
+            <div class="confirm-box">
+                <div class="confirm-message" id="display-message">
+                    A선거구 유권자 확인 완료.<br>종이 투표용지 1장을 교부해 주세요.
+                </div>
+                <button class="reset-btn" onclick="resetScanner()">다음 유권자 확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrcodeScanner;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`스캔 결과: ${decodedText}`);
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+            processToken(decodedText);
+        }
+
+        function processToken(token) {
+            if (!token) {
+                alert("유효한 코드를 입력해주세요.");
+                return;
+            }
+
+            let constituency = "A"; 
+            if (token.endsWith("-B")) {
+                constituency = "B";
+            }
+
+            document.getElementById('scan-step').style.display = 'none';
+            
+            document.getElementById('display-message').innerHTML = 
+                `<strong>${constituency}선거구 유권자 확인 완료.</strong><br><br>종이 투표용지 1장을 교부해 주세요.`;
+            
+            document.getElementById('confirm-step').style.display = 'block';
+        }
+
+        function resetScanner() {
+            document.getElementById('confirm-step').style.display = 'none';
+            document.getElementById('scan-step').style.display = 'block';
+            
+            initScanner();
+        }
+
+        function initScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", 
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                false
+            );
+            html5QrcodeScanner.render(onScanSuccess);
+        }
+
+        window.onload = function() {
+            initScanner();
+        };
+    </script>
+</body>
+</html>
